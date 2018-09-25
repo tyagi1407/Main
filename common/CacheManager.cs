@@ -9,7 +9,7 @@ using Microsoft.Practices.EnterpriseLibrary.Caching;
 using Microsoft.Practices.EnterpriseLibrary.Caching.Expirations;
 
 
-namespace SAS.AgentRedemption.Common
+namespace Common
 {
     public static class CacheManager
     {
