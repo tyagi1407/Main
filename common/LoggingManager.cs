@@ -10,7 +10,7 @@ using Microsoft.Practices.EnterpriseLibrary.Common.Configuration;
 using System.Globalization;
 using System.Reflection;
 
-namespace SAS.AgentRedemption.Common
+namespace Common
 {
     public static class LoggingManager
     {
