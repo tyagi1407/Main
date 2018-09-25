@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using System.Runtime.ExceptionServices;
 
 
-namespace SAS.AgentRedemption.Common
+namespace Common
 {
 
     [global::System.Serializable]
-    public class SEIPAmadeusException : Exception
+    public class CustomException : Exception
     {
         private int _errorCode;
 
@@ -27,40 +27,40 @@ namespace SAS.AgentRedemption.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="SEIPAmadeusException"/> class.
         /// </summary>
-        public SEIPAmadeusException()
+        public CustomException()
         { }
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SEIPAmadeusException"/> class.
+        /// Initializes a new instance of the <see cref="CustomException"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
-        public SEIPAmadeusException(string message)
+        public CustomException(string message)
             : base(message)
         { }
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SEIPAmadeusException"/> class.
+        /// Initializes a new instance of the <see cref="CustomException"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="inner">The inner.</param>
-        public SEIPAmadeusException(string message, Exception inner) : base(message, inner) { }
+        public CustomException(string message, Exception inner) : base(message, inner) { }
 
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SEIPAmadeusException"/> class.
+        /// Initializes a new instance of the <see cref="CustomException"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="errorCode">The error code.</param>
-        public SEIPAmadeusException(string message, int errorCode, Exception inner)
+        public CustomException(string message, int errorCode, Exception inner)
             : base(message, inner)
         {
             this._errorCode = errorCode;
         }
 
-        public SEIPAmadeusException(ExceptionDispatchInfo exceptionDispatchInfo, Exception source, int errorCode, string message)
+        public CustomException(ExceptionDispatchInfo exceptionDispatchInfo, Exception source, int errorCode, string message)
             : base(message)
         {
             exceptionDispatchInfo = ExceptionDispatchInfo.Capture(source);
@@ -74,7 +74,7 @@ namespace SAS.AgentRedemption.Common
 
 
     [global::System.Serializable]
-    public class SasCreditsException : Exception
+    public class SCredException : Exception
     {
         private int _errorCode;
 
@@ -89,47 +89,47 @@ namespace SAS.AgentRedemption.Common
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SEIPAmadeusException"/> class.
+        /// Initializes a new instance of the <see cref="SCredException"/> class.
         /// </summary>
-        public SasCreditsException()
+        public SCredException()
         { }
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SEIPAmadeusException"/> class.
+        /// Initializes a new instance of the <see cref="SCredException"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
-        public SasCreditsException(string message)
+        public SCredException(string message)
             : base(message)
         { }
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SEIPAmadeusException"/> class.
+        /// Initializes a new instance of the <see cref="SCredException"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="inner">The inner.</param>
-        public SasCreditsException(string message, System.Exception inner) : base(message, inner) { }
+        public SCredException(string message, System.Exception inner) : base(message, inner) { }
 
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SEIPAmadeusException"/> class.
+        /// Initializes a new instance of the <see cref="SCredException"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="errorCode">The error code.</param>
-        public SasCreditsException(string message, int errorCode)
+        public SCredException(string message, int errorCode)
             : base(message)
         {
             this._errorCode = errorCode;
         }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="SEIPAmadeusException"/> class.
+        /// Initializes a new instance of the <see cref="SCredException"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="errorCode">The error code.</param>
-        public SasCreditsException(string message, int errorCode, Exception inner)
+        public SCredException(string message, int errorCode, Exception inner)
             : base(message, inner)
         {
             this._errorCode = errorCode;
@@ -137,7 +137,7 @@ namespace SAS.AgentRedemption.Common
 
 
 
-        public SasCreditsException(ExceptionDispatchInfo exceptionDispatchInfo, Exception source, int errorCode, string message)
+        public SCredException(ExceptionDispatchInfo exceptionDispatchInfo, Exception source, int errorCode, string message)
             : base(message)
         {
             exceptionDispatchInfo = ExceptionDispatchInfo.Capture(source);
