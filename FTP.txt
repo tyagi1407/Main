@@ -1,0 +1,91 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace GDPR
+{
+    public class FtpProvider
+    {
+
+        /// <summary>
+        /// defualt constructor
+        /// </summary>
+        public FtpProvider()
+        {
+
+        }
+
+        /// <summary>
+        /// Read file content from internal secured SSL FTP location
+        /// </summary>
+        /// <returns></returns>
+        public string ReadFile(long reqID, PartnerConfiguration configuration)
+        {
+            string fileContent = null;
+
+            try
+            {
+                //Get partner Configurations
+                string ftpServer = configuration.FtpServer;
+                string ftpPath = configuration.FtpPath;
+                string fileName = $"{reqID}.txt";
+                string urlString = $"ftp://{ftpServer}/" + fileName;
+
+                FtpWebRequest tmpReq = (FtpWebRequest)FtpWebRequest.Create(urlString);
+                tmpReq.EnableSsl = true;
+                ServicePointManager.ServerCertificateValidationCallback =new RemoteCertificateValidationCallback(ValidateServerCertificate);
+                tmpReq.Credentials = new NetworkCredential(configuration.Username, configuration.Password);
+                using (WebResponse tmpRes = tmpReq.GetResponse())
+                {
+                    using (Stream tmpStream = tmpRes.GetResponseStream())
+                    {
+                        using (TextReader tmpReader = new StreamReader(tmpStream))
+                        {
+                            fileContent = tmpReader.ReadToEnd();
+
+                        }
+                    }
+                }
+
+            }
+            catch (WebException ex)
+            {
+                String statusCode = ((FtpWebResponse)ex.Response).StatusCode.ToString();
+                String statusDescription = ((FtpWebResponse)ex.Response).StatusDescription;
+
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+
+            return fileContent;
+        }
+
+        /// <summary>
+        /// To validate the internal certificate
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="certificate"></param>
+        /// <param name="chain"></param>
+        /// <param name="sslPolicyErrors"></param>
+        /// <returns></returns>
+        private static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
+
+
+
+
+
+    }
+}
