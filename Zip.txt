@@ -1,0 +1,71 @@
+using Ionic.Zip;
+
+	/// <summary>
+        /// Compress the file data in zip file
+        /// </summary>
+        /// <param name="sortedExcerpts"></param>
+        /// <returns></returns>
+        public byte[] CompressData(List<SortedExcerpt> sortedExcerpts)
+        {
+            Excerpt bl = new Excerpt();
+            PrivacyAppDAO dao = new PrivacyAppDAO();            
+            string fileName = null;
+            try
+            {
+                using (var ms = new MemoryStream())
+                {
+                    using (var zip = new ZipFile())
+                    {
+                        foreach (var exc in sortedExcerpts)
+                        {
+                            if (exc.Data != null)//system excerpt
+                            {
+                                byte[] fileData = bl.GetExceprtDataPdf(Convert.ToInt64(exc.ID));
+                                fileName = dao.GetPartnerDefaultFileName(Convert.ToInt64(exc.PartnerAppID));
+                                if (string.IsNullOrEmpty(fileName))
+                                {
+                                    //set the default file name in case no configuration is found in database
+                                    fileName = "System-Excerpt";
+                                }
+
+                                zip.AddEntry($"{fileName}.pdf", fileData);
+
+                            }
+                            else//manual excerpt
+                            {
+                                foreach (var manExc in exc.manualExcerptList)
+                                    zip.AddEntry($"{manExc.FileName}.{manExc.FileType}", manExc.FileContent);
+
+                            }
+
+                        }
+
+                        zip.Save(ms);
+                    }
+
+                    return ms.ToArray();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+
+
+////Calling method
+
+
+		byte[] bytes = bl.CompressData(sortedExcerptList);
+
+                if (bytes != null)
+                {
+                    result = Request.CreateResponse(HttpStatusCode.OK);
+                    result.Content = new ByteArrayContent(bytes);
+                    result.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+                    result.Content.Headers.ContentDisposition.FileName = $"{requestId}.zip";
+                    result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
+                }
+
+		return result;
