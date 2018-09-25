@@ -35,19 +35,19 @@ namespace SAS.AgentRedemption.Common
 
 
 
-        public static Object TransformRetrievePNRObject(string XMLString, Object msgout2)
+        public static Object TransformRetrievePNRObject(string XMLString, Object msg)
         {
             try
             {
-                XmlSerializer oXmlSerializer = new XmlSerializer(msgout2.GetType());
-                msgout2 = oXmlSerializer.Deserialize(new StringReader(XMLString));
+                XmlSerializer oXmlSerializer = new XmlSerializer(msg.GetType());
+                msg = oXmlSerializer.Deserialize(new StringReader(XMLString));
             }
             catch (Exception ex)
             {
                 LoggingManager.LogError(Constants.Category.Common, ex.Message);
                 throw ;
             }
-            return msgout2;
+            return msg;
         }
 
 
@@ -56,9 +56,7 @@ namespace SAS.AgentRedemption.Common
 
 
     }
-    /// <summary>
-    /// PNRMessageTransform class is responsible for  serialization and Formatting response object
-    /// </summary>
+    
     public static class MessageTransform
     {
         /// <summary>
@@ -68,7 +66,7 @@ namespace SAS.AgentRedemption.Common
         /// <returns></returns>
         public static string CreateXML(Object request)
         {
-            //Represents an XML document to be queued in Tibco EMS 
+            
             XmlDocument xmlDoc = new XmlDocument();
             XmlSerializer xmlSerializer = new XmlSerializer(request.GetType());
             using (MemoryStream xmlStream = new MemoryStream())
@@ -81,44 +79,39 @@ namespace SAS.AgentRedemption.Common
         }
 
 
-        public static Object TransformRetrievePNRObject(string XMLString, Object msgout2)
+        public static Object TransformObject(string XMLString, Object msg)
         {
             try
             {
-                XmlSerializer oXmlSerializer = new XmlSerializer(msgout2.GetType());
-                msgout2 = oXmlSerializer.Deserialize(new StringReader(XMLString));
+                XmlSerializer oXmlSerializer = new XmlSerializer(msg.GetType());
+                msg = oXmlSerializer.Deserialize(new StringReader(XMLString));
             }
             catch (Exception ex )
             {
                 LoggingManager.LogError(Constants.Category.Common, ex.Message);
                 throw ;
             }
-            return msgout2;
+            return msg;
         }
 
-        public static Object TransformMessageObject(string XMLString, Object msgout2)
+        public static Object TransformMessageObject(string XMLString, Object msg)
         {
             try
             {
-                XmlSerializer oXmlSerializer = new XmlSerializer(msgout2.GetType());
-                msgout2 = oXmlSerializer.Deserialize(new StringReader(XMLString));
+                XmlSerializer oXmlSerializer = new XmlSerializer(msg.GetType());
+                msg = oXmlSerializer.Deserialize(new StringReader(XMLString));
             }
             catch (Exception ex)
             {
                 LoggingManager.LogError(Constants.Category.Common, ex.Message);
                 throw ;
             }
-            return msgout2;
+            return msg;
         }
 
 
-        /// <summary>
-        /// Used to Serialize the Audit message object into XML for Audit Logger .
-        /// Not to be used for any other Type other than ARS_AuditMessage
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        public static string CreateAuditXML(Object request)
+        
+        public static string CreateXML(Object request)
         {           
             XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
             ns.Add("ns0", "http://www.tibco.com/schemas/Logging/Lib_SharedResources/Lib_Schemas/Schema.xsd");
