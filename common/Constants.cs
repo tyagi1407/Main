@@ -6,81 +6,25 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace SAS.AgentRedemption.Common
+namespace Common
 {
     public static class Constants
     {
-        /// <summary>
-        /// Defines the various available ticketing options 
-        /// TKTL AutomatedTicketing , TTP_TTM_ET Instant Ticketing with end of transaction
-        /// </summary>
-        public enum TicketingServiceType
-        {
-            TKTL,   
-            TTP_ET,
-            TTP_TTM_ET,
-            TTM_ET
-        }
-
-        public enum Direction
-        {
-            ExternalOUT,
-            ExternalIN,
-            Internal
-        }
-
-        public enum PayloadType
-        {
-            TextPayload,
-            XmlPayload
-        }
-
-        public enum UpdatePNRDictionaryOption
-        {
-            TravelAgentOfficeID,
-            QueueNumber,
-            QueueCategory,
-            SasManualOfficeID,
-            TSMReference,
-            TSTReference
-        }
-
-        public enum PNRState
-        {
-            Inserted,
-            Started,
-            Validated,
-            Processed,
-            Credited,
-            Ticketed,
-            Falied
-        }
-        public enum PNRMessgaeType
-        {
-            NEWBOOKING,
-            TICKETINGREJECT,
-            QUEUEDTOSAS,
-            TICKETINGCOMPLETE,
-            REJECT,
-            ERROR,
-            Error
-        }
+        
         public enum ResponseCode
         {
             OK = 0,
             InputDataError = 100,
-            InvalidCredential = 101,
-            NotEnoughCredit = 102,
-            PNRAlreadyProcessing = 103,
-            TechnicalFailure = 909
+            InvalidCredential = 101,          
+            TechnicalFailure = 103
         }
 
-        public enum BookingServiceResponse
+        public enum ServiceResponse
         {
             Success = 0,
-            ParallelPNRFault = 103,
-            SeipGatewayFault =104,
-            BookingServiceInternalError  = 909
+            ParallelFault = 103,
+            GatewayFault =104,
+            ServiceInternalError  = 909
         }
 
 
@@ -89,18 +33,11 @@ namespace SAS.AgentRedemption.Common
         /// </summary>
         public enum Category
         {
-            MessageQueueService,
-            MessageQueueServiceDataAccess,
-            DispacherService,
-            DispacherServiceDataAccess,
-            BookingService,
-            BookingServiceDataAccess,
-            ErrorHandlerService,
-            ErrorHandlerServiceDataAccess,
+Component1,
+           Component2,
             GUI,
-            GUIDataAccess,
-            Common,
-            AuditLoggerService
+            Database,
+            Common
 
         }
 
@@ -113,40 +50,20 @@ namespace SAS.AgentRedemption.Common
             Verbose
         }
 
-        public enum Rank
+               public enum Key
         {
-            Rank500 = 500,
-            Rank200 = 200,
-            Rank100 = 100
-        }
-
-        public enum TravelAgentMessageKey
-        {
-            [Description("FZREPLY SASCREDITS")]
-            FZREPLYSASCREDITS,
-            [Description("CREDITS")]
-            FZCREDITS,
-            [Description("FZSEIP")]
-            FZSEIP,
-            [Description("FZ1-CREDITS")]
-            FZCREDITSEMD
+            [Description("Desc1")]
+            A1,
+            [Description("Desc2")]
+            A2,
+            [Description("Desc1")]
+            A1,
+            [Description("Desc2")]
+            A2,
         }
 
 
-        /// <summary>
-        /// Used for Adding/Deleting/updating  pnr elements using Update PNR External call
-        /// </summary>
-        public enum UpdatePNRSegment
-        {
-            OP,
-            FZ,
-            RM,
-            RC,
-            FP,
-            EMDFZ,
-            EMDFP
-        }
-
+        
         /// <summary>        
         ///This Regular expression is only loaded when required to check the form of payment in any use case for credit card- keyword CC is always followed by alphabet
         /// </summary>
