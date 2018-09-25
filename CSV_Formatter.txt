@@ -1,0 +1,119 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.IO;
+using System.Web.Script.Serialization;
+using SAS.GDPR.Model;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace SAS.GDPR.MediaFormater
+{
+    public class ExcerptCsvFormatter 
+    {
+        public StringBuilder strTags = new StringBuilder();
+        public StringBuilder strvalues = new StringBuilder();
+        public StringBuilder CSVcomplete = new StringBuilder();
+        // <summary>
+        /// This function will convert any JSON data to CSV format with string delimitter ','.
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public string JSONtoCSV(string json)
+        {
+            StringBuilder CSVcomplete = new StringBuilder();
+            var serializer = new JavaScriptSerializer();
+            JToken node = JToken.Parse(json);
+            WalkNode(node, n =>
+            {
+                JToken token = n["IndividualGetResponse"];
+            });
+            CSVcomplete.Append(strTags.ToString());
+            CSVcomplete.Append(Environment.NewLine);
+            CSVcomplete.Append(strvalues.ToString());
+            return CSVcomplete.ToString();
+
+        }
+
+        public string ConvertEDWResponseJsonToCsv(string json)
+        {
+            StringBuilder CSVcomplete = new StringBuilder();
+            var serializer = new JavaScriptSerializer();
+            JToken node = JToken.Parse(json);
+            WalkNode(node, n =>
+            {
+                JToken token = n["Response"];
+            });
+            CSVcomplete.Append(strTags.ToString());
+            CSVcomplete.Append(Environment.NewLine);
+            CSVcomplete.Append(strvalues.ToString());
+            return CSVcomplete.ToString();
+
+        }
+
+        public string ConvertTSPResponseJsonToCsv(string json)
+        {
+            StringBuilder CSVcomplete = new StringBuilder();
+            var serializer = new JavaScriptSerializer();
+            JToken node = JToken.Parse(json);
+            WalkNode(node, n =>
+            {
+                JToken token = n["Response"];
+            });
+            CSVcomplete.Append(strTags.ToString());
+            CSVcomplete.Append(Environment.NewLine);
+            CSVcomplete.Append(strvalues.ToString());
+            return CSVcomplete.ToString();
+
+        }
+        public string ConvertEBResponseJsonToCsv(string json)
+        {
+            StringBuilder CSVcomplete = new StringBuilder();
+            var serializer = new JavaScriptSerializer();
+            JToken node = JToken.Parse(json);
+            WalkNode(node, n =>
+            {
+                JToken token = n["Response"];
+            });
+            CSVcomplete.Append(strTags.ToString());
+            CSVcomplete.Append(Environment.NewLine);
+            CSVcomplete.Append(strvalues.ToString());
+            return CSVcomplete.ToString();
+
+        }
+
+
+        public void WalkNode(JToken node, Action<JObject> action)
+        {
+            if (node.Type == JTokenType.Object)
+            {
+                //action((JObject)node);
+
+                foreach (JProperty child in node.Children<JProperty>())
+                {
+                    WalkNode(child.Value, action);
+                }
+            }
+            else if (node.Type == JTokenType.Array)
+            {
+                foreach (JToken child in node.Children())
+                {
+                    WalkNode(child, action);
+                }
+            }
+            else
+            {
+                strTags.Append(((JProperty)node.Parent).Name + "|");
+                strvalues.Append(node.ToString() + "|");
+            }
+
+        }
+
+
+
+    }
+}
