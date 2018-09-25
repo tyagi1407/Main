@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SAS.AgentRedemption.Common
+namespace Common
 {
 
 
@@ -32,51 +32,20 @@ namespace SAS.AgentRedemption.Common
         INTERNALSYSTEMERROR = 301,
 
 
-        #region bookingServiceCodes
-
-        //Booking Service Codes 
+        #region ServiceCodes
 
         // A general system error code if nothing matching is found
-        BookingServiceSystemError = -1301,
-        // No pnr found in amadeus
-        NoPNRFound = -1302,
+        ServiceSystemError = -1301,        
+        NotFound = -1302,
         TimeoutFault = -1303,
-        AmadeusSimultaneousWarning = -1304,
-        SeipFault = -1305,
-        //
+        SimultaneousWarning = -1304,
+        Fault = -1305,      
 
         //External Provider Error Codes
-        RetrievePNRProviderFault = -1306,
-        RetrievePNRMapperError = -1307,
-        PricePNRProviderFault = -1308,
-        PricePNRMapperError = -1309,
-        PriceCurrencyMismatchError = -1310,
-        UpdatePNRProviderFault = -1311,
-        UpdatePNRMapperError = -1312,
-        CreditCardProviderFault = -1313,
-        CreditCardMapperError = -1314,
-        SASCreditServiceProviderError = -1315,
-        SASCreditServiceMapperError = -1316,
-        TicketingProviderFault = -1317,
-        TicketingMapperError = -1318,
-        TransformSEIPWSResponseError = -1319,
+        
 
         // DB error Code
-        ARSDatabaseFault = -1320,
-
-        EMDDocRefundProviderFault = -1322,
-        EMDDocRefundMapperError = -1323,
-        EMDDocRefundProviderError = -1324,
-
-
-        //SAS Credit error code        
-        CmpCodeNotFound = 30,
-        InvalidCMPCode = 804,
-        InCorrectOrMissingCMPCode = 805,
-        InvalidCarrier = 811,
-        InsufficientCredits = 814
-
-
+        DatabaseFault = -1320,
 
         #endregion
     }
@@ -91,7 +60,7 @@ namespace SAS.AgentRedemption.Common
 
         /// <summary>
         /// Create a new Error. 
-        /// Use a ErrorDefinition and ErrorType to create a new instance of an error Object. We can keep Error messages in one common file.
+        /// Use a ErrorDefinition and ErrorType to create a new instance of an error Object. 
         /// </summary>
         /// <param name="errorDefinition">Error definition from enumeration in ErrorManager class</param>
         /// <param name="errorType">Error type from enumeration in Error class</param>
@@ -113,11 +82,11 @@ namespace SAS.AgentRedemption.Common
         {
             if (exception.GetType() == typeof(SEIPAmadeusException))
             {
-                SEIPAmadeusException seipException = (SEIPAmadeusException)exception;
-                string message = seipException.Message;
-                if (seipException.ErrorCode != 0)
+                SCrException seipException = (SCrException)exception;
+                string message = SCrException.Message;
+                if (SCrException.ErrorCode != 0)
                 {
-                    message = "Error Code :" + seipException.ErrorCode.ToString() + " " + seipException.Message.ToString();
+                    message = "Error Code :" + SCrException.ErrorCode.ToString() + " " + SCrException.Message.ToString();
                 }
                 return message;
             }
