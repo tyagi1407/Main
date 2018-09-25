@@ -1,0 +1,519 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Script.Serialization;
+using System.IO;
+using System.Data;
+using System.Configuration;
+using Newtonsoft.Json;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using iTextSharp.text.pdf.fonts;
+
+
+namespace SAS.GDPR.MediaFormater
+{
+    public class ExcerptPdfFormatter
+    {
+        string imagePath = ConfigurationManager.AppSettings["Image.Logo"];
+
+        public byte[] GeneratePdf(long reqID, Model Response, object obj2, object obj3, object obj4)
+        {
+
+            byte[] bytes = new byte[6];
+            try
+            {
+
+                using (System.IO.MemoryStream memoryStream = new System.IO.MemoryStream())
+                {
+                    Document document = new Document(PageSize.A4, 40, 10, 10, 10);
+
+                    //PdfWriter writer = PdfWriter.GetInstance(document, new FileStream("D:/Demo.pdf", FileMode.Create));
+                    PdfWriter writer = PdfWriter.GetInstance(document, memoryStream);
+                    document.Open();
+                    //document.SetMargins(40f, 0f, 0f, 0f);
+
+                    #region Header
+
+                    Image image = Image.GetInstance(imagePath);
+                    image.ScaleToFit(60f, 70f);
+                    image.SpacingBefore = 10f;
+                    image.SpacingAfter = 1f;
+                    image.Alignment = Element.ALIGN_CENTER;
+
+                    document.Add(image);
+
+                    #endregion
+
+                    #region Content
+                    if (Response == null)
+                    {
+                        string text = "No records found.";
+                        Paragraph paragraph = new Paragraph();
+                        paragraph.Font = FontFactory.GetFont(FontFactory.TIMES_ROMAN, 12f, BaseColor.BLACK);
+                        paragraph.Add(text);
+                        document.Add(paragraph);
+
+                    }
+                    else
+                    {
+                        //DOB Handling
+                        string dateOfBirth = Response.Individual.BirthDate != null ? Response.Individual.BirthDate : "NA";
+                        string text = "Dear " +
+                                        Response.Individual.FirstName.ToString() + " " + Response.Individual.LastName.ToString() + " ,\n" +
+                                            "\n" +
+                                        "This is regarding your data excerpt ID#" + reqID.ToString() + "  requested by you. Please find below the data excerpt." + "\n" +
+                                            "\n" +
+                                        "Individual Identifier: " + Response.Individual.IndividualIdentifier + "\n" +
+                        "Name : " + Response.Individual.FirstName.ToString() + " " + Response.Individual.LastName.ToString() + "\n" +
+                        "DOB : " + dateOfBirth + "\n" +
+                        "\n" +
+                        "\n";
+
+                        Paragraph paragraph = new Paragraph();
+                        paragraph.Font = FontFactory.GetFont(FontFactory.TIMES_ROMAN, 12f, BaseColor.BLACK);
+                        paragraph.Add(text);
+                        document.Add(paragraph);
+
+
+                        Chunk pfChunk = new Chunk("Profiles: \n");
+                        pfChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                        document.Add(pfChunk);
+                        PdfPTable table = new PdfPTable(2);
+                        table.HorizontalAlignment = 0;
+
+                        if (Response.Individual.Default != null)
+                        {
+                            Chunk flightChunk = new Chunk("\nFlight \n");
+                            flightChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                            document.Add(flightChunk);
+
+
+                            var flight = Response.Individual.Default.Profile.Flight;
+                            if (flight != null)
+                            {
+                                table.AddCell("Specific Seat Request");
+                                table.AddCell(flight.SpecificSeatRequest);
+                                document.Add(table);
+                            }
+
+                            Chunk addChunk = new Chunk("\nAddresses: \n");
+                            addChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                            document.Add(addChunk);
+
+                            if (Response.Individual.Default.Profile.PhysicalAddresses != null)
+                            {
+                                foreach (var add in Response.Individual.Default.Profile.PhysicalAddresses)
+                                {
+                                    Chunk physicalAddChunk = new Chunk("\nPhysical Address \n");
+                                    physicalAddChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                                    document.Add(physicalAddChunk);
+                                    table = new PdfPTable(2);
+                                    table.HorizontalAlignment = 0;
+                                    table.AddCell("Address Line 1");
+                                    table.AddCell(add.AddressLine1);
+                                    table.AddCell("AddressLine 2");
+                                    table.AddCell(add.AddressLine2);
+                                    table.AddCell("AddressLine 3");
+                                    table.AddCell(add.AddressLine3);
+                                    table.AddCell("Bounced");
+                                    table.AddCell(add.Bounced);
+                                    table.AddCell("City Name");
+                                    table.AddCell(add.CityName);
+                                    table.AddCell("Company Name");
+                                    table.AddCell(add.CompanyName);
+                                    table.AddCell("Country Code");
+                                    table.AddCell(add.CountryCode);
+                                    table.AddCell("County State");
+                                    table.AddCell(add.CountyState);
+                                    table.AddCell("Function");
+                                    table.AddCell(add.Functions.Function);
+                                    document.Add(table);
+                                }
+                            }
+
+                            if (Response.Individual.Default.Profile.VirtualAddresses != null)
+                            {
+
+                                foreach (var add in Response.Individual.Default.Profile.VirtualAddresses)
+                                {
+                                    Chunk physicalAddChunk = new Chunk("\nVirtual Address \n");
+                                    physicalAddChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                                    document.Add(physicalAddChunk);
+                                    table = new PdfPTable(2);
+                                    table.HorizontalAlignment = 0;
+                                    table.AddCell("Virtual Address Line ");
+                                    table.AddCell(add.VirtualAddressLine);
+                                    table.AddCell("Virtual Address Key");
+                                    table.AddCell(add.VirtualAddressKey);
+                                    table.AddCell("Bounced");
+                                    table.AddCell(add.Bounced);
+                                    table.AddCell("Function");
+                                    table.AddCell(add.Functions.Function);
+
+                                    document.Add(table);
+                                }
+
+                            }
+
+                            Chunk fopsChunk = new Chunk("\nFOPs: \n");
+                            fopsChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                            document.Add(fopsChunk);
+
+                            if (Response.Individual.Default.Profile.FOPs != null)
+                            {
+                                foreach (var fop in Response.Individual.Default.Profile.FOPs)
+                                {
+                                    Chunk physicalAddChunk = new Chunk("\nFOP \n");
+                                    physicalAddChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                                    document.Add(physicalAddChunk);
+                                    table = new PdfPTable(2);
+                                    table.AddCell("FOP Key");
+                                    table.AddCell(fop.FOPKey);
+                                    table.AddCell("FOP Nick Name");
+                                    table.AddCell(fop.FOPNickName);
+                                    table.AddCell("Entry Channel");
+                                    table.AddCell(fop.EntryChannel);
+                                    table.AddCell("Authentication Required");
+                                    table.AddCell(fop.CreditCard.AuthenticationRequired);
+                                    table.AddCell("Card Description");
+                                    table.AddCell(fop.CreditCard.CardDescription);
+                                    table.AddCell("Corporate Credit Card");
+                                    table.AddCell(fop.CreditCard.CorporateCreditCard);
+                                    table.AddCell("Credit Card Issuer");
+                                    table.AddCell(fop.CreditCard.CreditCardIssuer);
+                                    table.AddCell("Credit Card Number");
+                                    table.AddCell(fop.CreditCard.CreditCardNumber);
+                                    table.AddCell("Credit Card Type");
+                                    table.AddCell(fop.CreditCard.CreditCardType);
+                                    table.AddCell("Expire Date");
+                                    table.AddCell(fop.CreditCard.ExpireDate);
+                                    table.AddCell("Expiry Reminder Sent");
+                                    table.AddCell(fop.CreditCard.ExpiryReminderSent);
+                                    table.AddCell("Is Default Code");
+                                    table.AddCell(fop.CreditCard.IsDefault);
+                                    table.AddCell("NameOnCard Name");
+                                    table.AddCell(fop.CreditCard.NameOnCard);
+                                    document.Add(table);
+                                }
+                            }
+                        }
+                        Chunk ebChunk = new Chunk("\nEB Details \n");
+                        ebChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                        document.Add(ebChunk);
+
+                        var eb = Response.Individual.EB;
+                        if (eb != null)
+                        {
+                            table = new PdfPTable(2);
+                            table.AddCell("Corporate Buyer Access");
+                            table.AddCell(eb.CorporateBuyerAccess);
+                            table.AddCell("Created");
+                            table.AddCell(eb.Created);
+                            table.AddCell("CreatedBy");
+                            table.AddCell(eb.CreatedBy);
+                            table.AddCell("Earn EBPoints");
+                            table.AddCell(eb.EarnEBPoints);
+                            table.AddCell("EBNumber");
+                            table.AddCell(eb.EBNumber);
+                            table.AddCell("Incentive Level");
+                            table.AddCell(eb.IncentiveLevel);
+                            table.AddCell("Last Modified");
+                            table.AddCell(eb.LastModified);
+                            table.AddCell("Member Status");
+                            table.AddCell(eb.MemberStatus);
+                            table.AddCell("Name On Card");
+                            table.AddCell("eb.NameOnCard");
+                            document.Add(table);
+                        }
+
+
+                        Chunk subscriptionChunk = new Chunk("\nSubscriptions : \n");
+                        subscriptionChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                        document.Add(subscriptionChunk);
+                        var sub = Response.Individual.Subscription;
+                        if (sub != null)
+                        {
+                            table = new PdfPTable(2);
+                            table.HorizontalAlignment = 0;
+                            table.AddCell("SubscriptionID");
+                            table.AddCell(sub.SubscriptionID);
+                            table.AddCell("Created");
+                            table.AddCell(sub.Created);
+                            table.AddCell("Created By");
+                            table.AddCell(sub.CreatedBy);
+                            table.AddCell("Last Modified");
+                            table.AddCell(sub.LastModified);
+                            table.AddCell("Last Modified By");
+                            table.AddCell(sub.LastModifiedBy);
+                            document.Add(table);
+                        }
+
+                        if (Response.Individual.Subscription != null)
+                        {
+                            foreach (var item in Response.Individual.Subscription.Subscriptions)
+                            {
+                                Chunk subscriptionItemChunk = new Chunk("\nSubscription Item \n");
+                                subscriptionItemChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                                document.Add(subscriptionItemChunk);
+                                table = new PdfPTable(2);
+                                table.HorizontalAlignment = 0;
+                                table.AddCell("Active");
+                                table.AddCell(item.Active);
+                                table.AddCell("Notification Address");
+                                table.AddCell(item.NotificationAddress);
+                                table.AddCell("Notification Type");
+                                table.AddCell(item.NotificationType);
+                                table.AddCell("Subscription Item Key");
+                                table.AddCell(item.SubscriptionItemKey);
+                                table.AddCell("Subscription Type");
+                                table.AddCell(item.SubscriptionType);
+                                table.AddCell("Communication Language");
+                                table.AddCell(item.CommunicationLanguage);
+                                table.AddCell("CountryCode Item Key");
+                                table.AddCell(item.CountryCode);
+
+                                document.Add(table);
+                            }
+                        }
+
+                        Chunk siteMemberChunk = new Chunk("\nSite Member : \n");
+                        siteMemberChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                        document.Add(siteMemberChunk);
+                        var site = Response.Individual.SiteMember;
+                        if (site != null)
+                        {
+                            table = new PdfPTable(2);
+                            table.HorizontalAlignment = 0;
+                            table.AddCell("User Name");
+                            table.AddCell(site.UserName);
+                            table.AddCell("CMP");
+                            table.AddCell(site.CMP);
+                            table.AddCell("Purchase Need Password");
+                            table.AddCell(site.PurchaseNeedPassword);
+                            table.AddCell("Created");
+                            table.AddCell(site.Created);
+                            table.AddCell("Created By");
+                            table.AddCell(site.CreatedBy);
+                            table.AddCell("Last Modified");
+                            table.AddCell(site.LastModified);
+                            table.AddCell("Last Modified By");
+                            table.AddCell(site.LastModifiedBy);
+                            document.Add(table);
+                        }
+
+                        Chunk tpChunk = new Chunk("\nTravel Pass : \n");
+                        tpChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                        document.Add(tpChunk);
+                        var tp = Response.Individual.TravelPass;
+                        if (tp != null)
+                        {
+                            table = new PdfPTable(2);
+                            table.HorizontalAlignment = 0;
+                            table.AddCell("Travel Pass Account Number");
+                            table.AddCell(tp.TravelPassAccountNumber);
+                            table.AddCell("Parent Identifier Address");
+                            table.AddCell(tp.ParentIdentifier);
+                            table.AddCell("CMP");
+                            table.AddCell(tp.CMP);
+                            table.AddCell("CID");
+                            table.AddCell(tp.CID);
+                            table.AddCell("Closed Address");
+                            table.AddCell(tp.Closed);
+                            table.AddCell("Communication Language");
+                            table.AddCell(tp.CommunicationLanguage);
+                            table.AddCell("Created");
+                            table.AddCell(tp.Created);
+                            table.AddCell("Created By");
+                            table.AddCell(tp.CreatedBy);
+                            table.AddCell("Last Modified");
+                            table.AddCell(tp.LastModified);
+                            table.AddCell("Last Modified By");
+                            table.AddCell(tp.LastModifiedBy);
+                            table.AddCell("Passenger Type");
+                            table.AddCell(tp.PassengerType);
+                            table.AddCell("Status Type");
+                            table.AddCell(tp.Status);
+                            document.Add(table);
+
+
+                            Chunk prdChunk = new Chunk("\nProduct : \n");
+                            prdChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                            document.Add(prdChunk);
+                            if (tp.Products != null && tp.Products.Product != null)
+                            {
+                                table.AddCell("Corporate Product");
+                                table.AddCell(tp.Products.Product.CorporateProduct);
+                                table.AddCell("Expiry Date");
+                                table.AddCell(tp.Products.Product.ExpiryDate);
+                                table.AddCell("Group Administrator");
+                                table.AddCell(tp.Products.Product.GroupAdministrator);
+                                table.AddCell("Product Category");
+                                table.AddCell(tp.Products.Product.ProductCategory);
+                                table.AddCell("Product Item Code");
+                                table.AddCell(tp.Products.Product.ProductItemCode);
+                                table.AddCell("Product Item Name");
+                                table.AddCell(tp.Products.Product.ProductItemName);
+                                table.AddCell("Product Key");
+                                table.AddCell(tp.Products.Product.ProductKey);
+                                table.AddCell("Product Type Code");
+                                table.AddCell(tp.Products.Product.ProductTypeCode);
+                                document.Add(table);
+                            }
+
+
+                            Chunk scpChunk = new Chunk("\nSCP Agreement: \n");
+                            scpChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                            document.Add(scpChunk);
+                            var scp = Response.Individual.TravelPass.SCPAgreement2;
+                            if (scp != null)
+                            {
+                                table = new PdfPTable(2);
+                                table.HorizontalAlignment = 0;
+                                table.AddCell("SCP Agreement Key");
+                                table.AddCell(scp.SCPAgreement2Key);
+                                table.AddCell("Agreement Status");
+                                table.AddCell(scp.AgreementStatus);
+                                table.AddCell("Agreement Type");
+                                table.AddCell(scp.AgreementType);
+                                table.AddCell("End Date");
+                                table.AddCell(scp.EndDate);
+                                table.AddCell("Start Date");
+                                table.AddCell(scp.StartDate);
+                                table.AddCell("Tracking ID");
+                                table.AddCell(scp.TrackingID);
+                                table.AddCell("CID");
+                                table.AddCell(scp.CID);
+                                table.AddCell("Company Name");
+                                table.AddCell(Response.Individual.TravelPass.SupplementaryInformation.CompanyName);
+                                table.AddCell("Company Home Country Code");
+                                table.AddCell(Response.Individual.TravelPass.SupplementaryInformation.CompanyHomeCountryCode);
+
+                                document.Add(table);
+                            }
+                        }
+
+                        Chunk consentsChunk = new Chunk("\nPrivacySettings : \n");
+                        consentsChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                        document.Add(consentsChunk);
+                        var consents = Response.Individual.PrivacySettings;
+                        if (consents != null)
+                        {
+                            table.AddCell("SettingID");
+                            table.AddCell(consents.SettingID);
+                            table.AddCell("Created");
+                            table.AddCell(consents.Created);
+                            table.AddCell("CreatedBy");
+                            table.AddCell(consents.CreatedBy);
+                            table.AddCell("Last Modified");
+                            table.AddCell(consents.LastModified);
+                            table.AddCell("Last Modified By");
+                            table.AddCell(consents.LastModifiedBy);
+                            if (consents.Settings != null)
+                            {
+                                foreach (var item in Response.Individual.PrivacySettings.Settings)
+                                {
+                                    Chunk subscriptionItemChunk = new Chunk("\nPrivacy Setting Item \n");
+                                    subscriptionItemChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLD, 16f, BaseColor.BLACK);
+                                    document.Add(subscriptionItemChunk);
+                                    table = new PdfPTable(2);
+                                    table.HorizontalAlignment = 0;
+                                    table.AddCell("Privacy Item Key");
+                                    table.AddCell(item.PrivacyItemKey);
+                                    table.AddCell("Privacy Type");
+                                    table.AddCell(item.PrivacyArea);
+                                    table.AddCell("Active");
+                                    table.AddCell(item.Active);
+                                    table.AddCell("Privacy Delivery Type");
+                                    table.AddCell(item.Type);
+                                    document.Add(table);
+                                }
+                            }
+                        }
+
+                    }
+
+                    #endregion
+
+                    #region Footer
+
+                    Phrase phrase = new Phrase("\n\n\nThanks for being valuable customer. \n");
+                    document.Add(phrase);
+
+                    Chunk headerChunk = new Chunk("\nSAS \n");
+                    headerChunk.Font = FontFactory.GetFont(FontFactory.TIMES_BOLDITALIC, 20f, new BaseColor(15, 3, 153));
+                    document.Add(headerChunk);
+
+                    document.Close();
+                    #endregion
+
+                    bytes = memoryStream.ToArray();
+                    memoryStream.Close();
+
+                }
+            }
+            catch (Exception ex)
+            {
+               
+                throw;
+            }
+
+
+            return bytes;
+
+        }
+
+
+
+        /// <summary>
+        /// This method deserialize the json into object
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public T DeSerializeJson<T>(string json)
+        {
+            try
+            {
+                // Deserializing json data to object  
+                T typedResponse = JsonConvert.DeserializeObject<T>(json);
+                return typedResponse;
+            }
+            catch (Exception ex)
+            {
+               throw;
+            }
+
+        }
+
+        /// <summary>
+        /// This method deserialize the json into object
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public EDWResponse DeSerializeJson(string json)
+        {
+            try
+            {
+                // Deserializing json data to object  
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                Response Response = js.Deserialize<Response>(json);
+                return Response;
+            }
+            catch (Exception ex)
+            {
+                
+
+                throw;
+            }
+
+        }
+        
+
+        }
+        
+
+    }
+}
+
