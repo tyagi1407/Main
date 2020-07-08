@@ -1,0 +1,23 @@
+
+git url if required-
+git@git.swissport.aero:AMS/AFIS.git/ui/swissport-afis-ui-elements/npm_registry
+
+gaurav1407
+Swiss1234!
+
+CLIENT SIDE
+
+create npm_registy folder
+cd npm_registy 
+copy single angular element js file with index.js name
+npm adduser
+npm login
+npm init/npm init --yes
+add README.md file
+npm publish
+swissport-flight-custom-elements@1.0.0
+
+SERVER SIDE
+npm i swissport-flight-custom-elements --save
+import swissport-flight-custom-elements 
+<afis-flight-arrival-angular-element [profile]=profile message="hello arrival!!"></afis-flight-arrival-angular-element> 

@@ -1,0 +1,9 @@
+
+
+--installation
+dotnet tool install --global Apache.Avro.Tools --version 1.9.1-alpha002
+
+10.75.3.17
+cd C:\Users\gt305655\.dotnet\tools
+avrogen -s D:\Gaurav\avrogen\flight.asvc D:\Gaurav\avrogen\flight
+
